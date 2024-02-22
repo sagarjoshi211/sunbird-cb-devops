@@ -26,7 +26,7 @@ pipeline {
             steps {
                 script {
                     if (fileExists("${local_backup_dir}")) {
-                        mountNFS()
+                       //  mountNFS()
                         sh "cp -r ${local_backup_dir}/* ${nfs_mount_point}/backup/"
                         // unmountNFS()
                     }
