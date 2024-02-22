@@ -52,4 +52,5 @@ pipeline {
         if (fileExists("${local_backup_dir}")) {
             sh "rm -rf ${local_backup_dir}/*"
         }
+    }
 }
