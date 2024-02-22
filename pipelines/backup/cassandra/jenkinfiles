@@ -2,7 +2,7 @@ pipeline {
     agent any
     
     environment {
-        local_backup_dir = "/tmp"
+        local_backup_dir = "/tmp/testing_backup"
         nfs_mount_point = "/test_backup"
         retention_days = 15
         source_data_dir = "/var/lib/cassandra/data/sunbird_groups/group_member-eb52a21025f111ec80d2db6e8b8402e3/snapshots"
@@ -14,7 +14,7 @@ pipeline {
             steps {
                 script {
                     sh "mkdir -p ${local_backup_dir}"
-                    def oldFiles = sh(script: "find ${source_data_dir} -type f -mtime +${retention_days}", returnStdout: true).trim().split('\n')
+                    // def oldFiles = sh(script: "find ${source_data_dir} -type f -mtime +${retention_days}", returnStdout: true).trim().split('\n')
                     if (oldFiles) {
                         sh "mv ${oldFiles.join(' ')} ${local_backup_dir}/"
                     }
