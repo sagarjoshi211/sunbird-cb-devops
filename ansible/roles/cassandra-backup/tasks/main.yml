@@ -1,20 +1,57 @@
+# ---
+# - name: Taking Cassandra Snapshots
+#   shell: |
+#     nodetool clearsnapshot
+#     nodetool snapshot -t "cassandra-backup-{{ lookup('pipe', 'date +%Y%m%d') }}-{{ ansible_hostname }}-new"
+#   ignore_errors: yes
 
-
-
-
-
-
+# - name: Compressing and Uploading Snapshots
+#   shell: |
+#     cd {{ backup_directory }}
+#     find . -type d -name '*cassandra-backup*' -exec tar -czvf {}.tar.gz {} \;
+#     find . -type d -name '*cassandra-backup*' -exec rm -rf {} \;
+#     rsync -avz --remove-source-files {{ backup_directory }}/*.tar.gz {{ nfs_mount_path }}
+#   ignore_errors: yes
 ---
-- name: Taking Cassandra Snapshots
-  shell: |
-    nodetool clearsnapshot
-    nodetool snapshot -t "cassandra-backup-{{ lookup('pipe', 'date +%Y%m%d') }}-{{ ansible_hostname }}-new"
-  ignore_errors: yes
+- name: Backup and Transfer Data
+  gather_facts: false
+  vars:
+    local_backup_dir: "/var/lib/cassandra/data/sunbird_groups/group_member-eb52a21025f111ec80d2db6e8b8402e3/snapshots"
+    nfs_mount_point: "/test_backup"
+    retention_days: 15
+    source_data_dir: "/var/lib/cassandra/data/sunbird_groups/group_member-eb52a21025f111ec80d2db6e8b8402e3/snapshots"
 
-- name: Compressing and Uploading Snapshots
-  shell: |
-    cd {{ backup_directory }}
-    find . -type d -name '*cassandra-backup*' -exec tar -czvf {}.tar.gz {} \;
-    find . -type d -name '*cassandra-backup*' -exec rm -rf {} \;
-    rsync -avz --remove-source-files {{ backup_directory }}/*.tar.gz {{ nfs_mount_path }}
-  ignore_errors: yes
+  tasks:
+    - name: Create local backup directory if not exists
+      file:
+        path: "{{ local_backup_dir }}"
+        state: directory
+
+    - name: Find files older than {{ retention_days }} days
+      find:
+        paths: "{{ source_data_dir }}"
+        age: "{{ retention_days }}d"
+      register: old_files
+
+    - name: Move old files to local backup directory
+      command: "mv {{ item.path }} {{ local_backup_dir }}/"
+      with_items: "{{ old_files.files }}"
+      when: old_files.matched > 0
+
+    - name: Mount NFS directory if not already mounted
+      mount:
+        path: "{{ nfs_mount_point }}"
+        # src: "nfs_server:/nfs/share"  # Replace with your NFS server and share
+      #   fstype: nfs
+      #   state: mounted
+      # when: nfs_mount_point not in ansible_mounts
+
+    - name: Transfer old files to NFS directory
+      shell: "cp -r {{ local_backup_dir }}/* {{ nfs_mount_point }}/backup/"
+      when: old_files.matched > 0
+
+    # - name: Unmount NFS directory
+    #   mount:
+    #     path: "{{ nfs_mount_point }}"
+    #     state: unmounted
+    #   when: nfs_mount_point in ansible_mounts
