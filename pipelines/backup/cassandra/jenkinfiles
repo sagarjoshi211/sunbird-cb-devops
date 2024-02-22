@@ -42,17 +42,4 @@ pipeline {
     }
 }
 
-
-def fileExists(path) {
-    return fileExistsHelper(path).trim() == "true"
-}
-
-def fileExistsHelper(path) {
-    return sh(script: "[ -e ${path} ] && echo true || echo false", returnStdout: true).trim()
-}
-
-def cleanupLocal() {
-    if (fileExists("${local_backup_dir}")) {
-        sh "rm -rf ${local_backup_dir}/*"
-    }
 }
