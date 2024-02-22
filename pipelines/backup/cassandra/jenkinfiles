@@ -2,7 +2,7 @@ pipeline {
     agent any
     
     environment {
-        local_backup_dir = "/var/lib/cassandra/data/sunbird_groups/group_member-eb52a21025f111ec80d2db6e8b8402e3/snapshots"
+        local_backup_dir = "/tmp"
         nfs_mount_point = "/test_backup"
         retention_days = 15
         source_data_dir = "/var/lib/cassandra/data/sunbird_groups/group_member-eb52a21025f111ec80d2db6e8b8402e3/snapshots"
