@@ -40,7 +40,7 @@ pipeline {
             cleanupLocal()
         }
     }
-
+}
 def fileExists(path) {
     return fileExistsHelper(path).trim() == "true"
 }
@@ -53,5 +53,4 @@ def cleanupLocal() {
     if (fileExists("${local_backup_dir}")) {
         sh "rm -rf ${local_backup_dir}/*"
     }
-}
 }
