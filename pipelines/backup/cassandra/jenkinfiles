@@ -32,6 +32,7 @@ pipeline {
                         sh "cp -r ${local_backup_dir}/* ${nfs_mount_point}/backup/"
                         unmountNFS()
                     }
+                } 
             }
         }
     }
