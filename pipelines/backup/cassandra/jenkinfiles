@@ -25,12 +25,13 @@ pipeline {
         stage('Transfer to NFS') {
             steps {
                 script {
-                    if (fileExists("${local_backup_dir}")) {
-                       //  mountNFS()
-                        sh "sudo cp -r ${local_backup_dir}/* ${nfs_mount_point}"
-                        // unmountNFS()
+                    def filesToCopy = sh(script: "ls -A ${local_backup_dir}", returnStdout: true).trim().split('\n')
+                    if (filesToCopy) {
+                        mountNFS()
+                        sh "mkdir -p ${nfs_mount_point}/backup"
+                        sh "cp -r ${local_backup_dir}/* ${nfs_mount_point}/backup/"
+                        unmountNFS()
                     }
-                }
             }
         }
     }
