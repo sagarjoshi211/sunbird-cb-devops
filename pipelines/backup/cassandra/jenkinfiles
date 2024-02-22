@@ -15,9 +15,9 @@ pipeline {
                 script {
                     sh "mkdir -p ${local_backup_dir}"
                     // def oldFiles = sh(script: "find ${source_data_dir} -type f -mtime +${retention_days}", returnStdout: true).trim().split('\n')
-                    if (oldFiles) {
-                        sh "mv ${oldFiles.join(' ')} ${local_backup_dir}/"
-                    }
+                    // if (oldFiles) {
+                    //    sh "mv ${oldFiles.join(' ')} ${local_backup_dir}/"
+                   // }
                 }
             }
         }
