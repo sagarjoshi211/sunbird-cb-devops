@@ -28,8 +28,8 @@ pipeline {
                     def filesToCopy = sh(script: "ls -A ${local_backup_dir}", returnStdout: true).trim().split('\n')
                     if (filesToCopy) {
                         // mountNFS()
-                        sh "mkdir -p ${nfs_mount_point}/backup"
-                        sh "cp -r ${local_backup_dir}/* ${nfs_mount_point}/backup/"
+                        sh "sudo mkdir -p ${nfs_mount_point}/backup"
+                        sh "sudo cp -r ${local_backup_dir}/* ${nfs_mount_point}/backup/"
                         // unmountNFS()
                     }
                 } 
