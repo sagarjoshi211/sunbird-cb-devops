@@ -1,8 +1,4 @@
 # cassandra_backup.yml
-
-- name: Cassandra Backup and Transfer
-  hosts: cassandra_servers
-  gather_facts: false
   tasks:
     - name: Take Cassandra backup
       command: "nodetool snapshot -t backup_{{ ansible_date_time.epoch }} -p /home/admin/test_backup {{ keyspace }}"
