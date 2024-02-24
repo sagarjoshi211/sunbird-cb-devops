@@ -1,12 +1,13 @@
 # cassandra_backup.yml
-  tasks:
-    - name: Take Cassandra backup
-      command: "nodetool snapshot -t backup_{{ ansible_date_time.epoch }} -p /home/admin/test_backup {{ keyspace }}"
-      become: true
+---
+tasks:
+  - name: Take Cassandra backup
+    command: "nodetool snapshot -t backup_{{ ansible_date_time.epoch }} -p /home/admin/test_backup {{ keyspace }}"
+    become: true
 
-    - name: Transfer backup files to another folder
-      synchronize:
-        src: "/home/admin/test_backup"
-        dest: "/test_backup"
-        recursive: yes
-      become: true
+  - name: Transfer backup files to another folder
+    synchronize:
+      src: "/home/admin/test_backup"
+      dest: "/test_backup"
+      recursive: yes
+    become: true
