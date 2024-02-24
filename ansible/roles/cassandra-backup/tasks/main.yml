@@ -1,13 +1,32 @@
-# cassandra_backup.yml
----
-tasks:
-  - name: Take Cassandra backup
-    command: "nodetool snapshot -t backup_{{ ansible_date_time.epoch }} -p /home/admin/test_backup {{ keyspace }}"
-    become: true
+- name: Create the directory
+  become: yes
+  file: path=/data/cassandra/backup state=directory recurse=yes
 
-  - name: Transfer backup files to another folder
-    synchronize:
-      src: "/home/admin/test_backup"
-      dest: "/test_backup"
-      recursive: yes
-    become: true
+- name: copy the backup script
+  become: yes
+  template:
+    src: ../../../../deploy/cassandra_backup.py 
+    dest: /data/cassandra/backup/cassandra_backup.py
+    mode: 0755
+
+- set_fact:
+    cassandra_backup_gzip_file_name: "cassandra-backup-{{ lookup('pipe', 'date +%Y%m%d') }}-{{ ansible_hostname }}"
+
+- set_fact:
+    cassandra_backup_gzip_file_path: "{{ cassandra_backup_dir }}/{{ cassandra_backup_gzip_file_name }}.tar.gz"
+
+- name: run the backup script
+  become: yes
+  shell: python3 cassandra_backup.py --snapshotname "{{ cassandra_backup_gzip_file_name }}" "{{additional_arguments|d('')}}"
+  args:
+    chdir: /data/cassandra/backup
+  async: 7200
+  poll: 30
+
+- name: Check doc_root path
+  shell: ls -all /data/cassandra/backup/
+  register: doc_data
+
+- name: print doc_root to console
+  debug:
+    var: doc_data
