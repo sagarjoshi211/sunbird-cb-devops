@@ -1,0 +1,10 @@
+- hosts: "{{ groups['cassandra'][0] }}"
+  become: yes
+  vars_files:
+    - ['{{ inventory_dir }}/secrets.yml', 'secrets/{{ env }}.yml']
+  vars:
+    - cassandra_backup_path: "{{ your_cassandra_backup_path }}"
+    - other_cassandra_vars: "{{ other_cassandra_vars }}"
+  roles:
+    - role: cassandra-backup-role
+      tags: cassandra-backup
